@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi-Disease Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E40AF;
+            --secondary: #059669;
+            --secondary-dark: #047857;
+            --background: #EFF6FF;
+            --sidebar: #1E293B;
+            --sidebar-hover: #334155;
+            --card: #FFFFFF;
+            --card-hover: #F8FAFC;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --accent: #8B5CF6;
+            --accent-light: #EDE9FE;
+            --success: #059669;
+            --error: #DC2626;
+            --warning: #D97706;
+            --gradient-start: #2563EB;
+            --gradient-end: #7C3AED;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--sidebar) 0%, #0F172A 100%);
+            padding: 1.5rem;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #E2E8F0;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: var(--sidebar-hover);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            background: linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 100%);
+        }
+
+        .disease-content {
+            display: none;
+            background: linear-gradient(135deg, white 0%, #FAFAFA 100%);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(37, 99, 235, 0.1);
+        }
+
+        .disease-content.active {
+            display: block;
+        }
+
+        .input-group {
+            margin: 1.5rem 0;
+            background: var(--accent-light);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #E2E8F0;
+            border-radius: 0.5rem;
+            background: white;
+        }
+
+        input[type="file"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        button {
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        .result {
+            margin-top: 1rem;
+            padding: 1.25rem;
+            background: var(--accent-light);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-logo">🏥 HealthPredict AI</a>
+        </div>
+        <ul class="nav-list">
+            <li class="nav-item"><a href="#pneumonia" class="nav-link active" onclick="showContent('pneumonia')">🫁 Pneumonia Detection</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div id="pneumonia" class="disease-content active">
+            <h2>Pneumonia Detection</h2>
+            <p>Upload a chest X-ray to detect signs of pneumonia with high accuracy.</p>
+            <form action="/" method="post" enctype="multipart/form-data">
+                <div class="input-group">
+                    <input type="file" name="file" required />
+                </div>
+                <button type="submit">Upload & Predict</button>
+            </form>
+            {% if prediction %}
+                <div class="result">
+                    <p>Prediction: {{ prediction }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script>
+        function showContent(id) {
+            document.querySelectorAll('.disease-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+    </script>
+</body>
+</html>
