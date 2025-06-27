@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medical Chatbot</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <style>
+      :root {
+        --primary: #2563eb;
+        --primary-dark: #1e40af;
+        --secondary: #059669;
+        --secondary-dark: #047857;
+        --background: #eff6ff;
+        --sidebar: #1e293b;
+        --sidebar-hover: #334155;
+        --card: #ffffff;
+        --card-hover: #f8fafc;
+        --text: #1e293b;
+        --text-light: #64748b;
+        --accent: #8b5cf6;
+        --accent-light: #ede9fe;
+        --success: #059669;
+        --error: #dc2626;
+        --warning: #d97706;
+        --gradient-start: #2563eb;
+        --gradient-end: #7c3aed;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--background);
+        color: var(--text);
+      }
+
+      .prediction-card {
+        margin-bottom: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(37, 99, 235, 0.1);
+        border-radius: 1rem;
+        background: linear-gradient(135deg, white 0%, #fafafa 100%);
+      }
+
+      .response-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid var(--primary);
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 10px;
+        white-space: pre-wrap;
+      }
+
+      .file-upload {
+        border: 2px dashed #e1e1e1;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: var(--accent-light);
+      }
+
+      .file-upload:hover {
+        border-color: var(--primary);
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          90deg,
+          var(--gradient-start),
+          var(--gradient-end)
+        );
+        border: none;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+      }
+
+      .input-group {
+        margin: 1.5rem 0;
+        background: var(--accent-light);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+      }
+
+      .image-preview-container {
+        margin-top: 1rem;
+        display: none;
+      }
+
+      .image-preview {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 0.5rem;
+        border: 2px solid #e1e1e1;
+        object-fit: contain;
+      }
+
+      .remove-image-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: none;
+      }
+
+      .preview-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav
+      class="sidebar"
+      style="
+        width: 280px;
+        position: fixed;
+        height: 100vh;
+        background: linear-gradient(180deg, var(--sidebar) 0%, #0f172a 100%);
+        color: white;
+        padding: 1.5rem;
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <div class="sidebar-header mb-4">
+        <a
+          href="/"
+          class="sidebar-logo"
+          style="
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+          "
+          >🏥 HealthPredict AI</a
+        >
+      </div>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a
+            href="/"
+            class="nav-link"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 0.75rem;
+              padding: 0.75rem 1rem;
+              color: #e2e8f0;
+              text-decoration: none;
+              border-radius: 0.5rem;
+              transition: all 0.3s;
+            "
+          >
+            🏠 Back to Home
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <main
+      class="main-content"
+      style="
+        margin-left: 280px;
+        padding: 2rem;
+        background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+        min-height: 100vh;
+      "
+    >
+      <div class="card prediction-card">
+        <div class="card-body">
+          <div class="text-center">
+            <i
+              class="bi bi-heart-pulse"
+              style="
+                font-size: 2.5rem;
+                color: var(--primary);
+                margin-bottom: 1rem;
+              "
+            ></i>
+            <h2>Medical Assistant</h2>
+          </div>
+
+          <form action="/ask" method="post" enctype="multipart/form-data">
+            <div class="mb-3 input-group">
+              <label class="form-label">Your Medical Question</label>
+              <textarea
+                class="form-control"
+                name="prompt"
+                rows="4"
+                required
+                placeholder="Describe your symptoms or ask a medical question..."
+                style="
+                  border: 2px solid #e1e1e1;
+                  border-radius: 10px;
+                  padding: 1rem;
+                  transition: all 0.3s ease;
+                "
+              ></textarea>
+            </div>
+
+            <div class="mb-3 input-group">
+              <label class="form-label">Medical Image (Optional)</label>
+              <div class="file-upload">
+                <input
+                  class="d-none"
+                  type="file"
+                  name="image"
+                  id="image-upload"
+                  accept="image/*"
+                />
+                <i
+                  class="bi bi-image"
+                  style="
+                    font-size: 2rem;
+                    color: var(--secondary);
+                    margin-bottom: 1rem;
+                  "
+                ></i>
+                <p
+                  class="upload-text"
+                  style="color: var(--text-light); margin: 0"
+                >
+                  Drag & drop an image or click to browse
+                </p>
+                <p
+                  class="upload-text small mb-0"
+                  style="color: var(--text-light)"
+                >
+                  Supported formats: JPG, PNG
+                </p>
+              </div>
+              <div class="image-preview-container" id="image-preview-container">
+                <div class="preview-wrapper">
+                  <img
+                    id="image-preview"
+                    class="image-preview"
+                    src="#"
+                    alt="Preview"
+                  />
+                  <button
+                    type="button"
+                    class="remove-image-btn"
+                    id="remove-image-btn"
+                  >
+                    <i class="bi bi-x" style="color: var(--error)"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-3">
+              <button type="reset" class="btn btn-light flex-grow-1">
+                Reset
+              </button>
+              <button type="submit" class="btn btn-primary flex-grow-1">
+                <i class="bi bi-send me-2"></i>Submit Question
+              </button>
+            </div>
+          </form>
+
+          {% if response %}
+          <div
+            class="response-section"
+            style="
+              margin-top: 2.5rem;
+              padding-top: 2.5rem;
+              border-top: 2px solid #f0f0f0;
+            "
+          >
+            <div
+              class="response-header"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                margin-bottom: 1rem;
+              "
+            >
+              <i
+                class="bi bi-robot"
+                style="font-size: 1.5rem; color: var(--primary)"
+              ></i>
+              <h4 class="mb-0">Assistant's Response</h4>
+            </div>
+            <div class="response-content">{{ response | safe }}</div>
+          </div>
+          {% endif %}
+
+          <p
+            class="disclaimer"
+            style="
+              text-align: center;
+              color: var(--text-light);
+              font-size: 0.875rem;
+              margin-top: 2rem;
+            "
+          >
+            This Medical Assistant is for informational purposes only and is not
+            a substitute for professional medical advice, diagnosis, or
+            treatment.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.querySelector(".file-upload").addEventListener("click", () => {
+        document.getElementById("image-upload").click();
+      });
+
+      document
+        .getElementById("image-upload")
+        .addEventListener("change", function () {
+          const file = this.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const preview = document.getElementById("image-preview");
+              preview.src = e.target.result;
+              document.getElementById("image-preview-container").style.display =
+                "block";
+            };
+            reader.readAsDataURL(file);
+
+            document.querySelector(
+              ".upload-text"
+            ).textContent = `Selected: ${file.name}`;
+          }
+        });
+
+      document
+        .getElementById("remove-image-btn")
+        .addEventListener("click", function () {
+          document.getElementById("image-upload").value = "";
+          document.getElementById("image-preview").src = "#";
+          document.getElementById("image-preview-container").style.display =
+            "none";
+          document.querySelector(".upload-text").textContent =
+            "Drag & drop an image or click to browse";
+        });
+
+      document.querySelector("form").addEventListener("reset", function () {
+        document.getElementById("image-preview").src = "#";
+        document.getElementById("image-preview-container").style.display =
+          "none";
+      });
+    </script>
+  </body>
+</html>

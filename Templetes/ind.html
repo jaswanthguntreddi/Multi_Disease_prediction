@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>mmender System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            padding: 40px;
+            max-width: 600px;
+            margin: auto;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        select, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        .result, .warning {
+            margin-top: 20px;
+            padding: 15px;
+            border-left: 5px solid;
+        }
+        .result {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>💊 Medicine Recommender System</h1>
+    <form method="POST">
+        <label for="medicine">Select or type your medicine name:</label>
+        <select name="medicine" required>
+            {% for med in medicines %}
+                <option value="{{ med }}" {% if selected_medicine == med %}selected{% endif %}>{{ med }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Recommend Alternatives</button>
+    </form>
+
+    {% if recommendations %}
+        <div class="result">
+            <strong>Top alternatives for {{ selected_medicine }}:</strong>
+            <ul>
+                {% for rec in recommendations %}
+                    <li>
+                        {{ loop.index }}. <strong>{{ rec }}</strong> →
+                        <a href="https://pharmeasy.in/search/all?name={{ rec }}" target="_blank">🛒 Buy</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% elif selected_medicine %}
+        <div class="warning">
+            No recommendations found for the selected medicine.
+        </div>
+    {% endif %}
+</body>
+</html>

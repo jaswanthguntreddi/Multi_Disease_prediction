@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HealthPredict AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E40AF;
+            --secondary: #059669;
+            --secondary-dark: #047857;
+            --background: #EFF6FF;
+            --sidebar: #1E293B;
+            --sidebar-hover: #334155;
+            --card: #FFFFFF;
+            --card-hover: #F8FAFC;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --accent: #8B5CF6;
+            --accent-light: #EDE9FE;
+            --success: #059669;
+            --error: #DC2626;
+            --warning: #D97706;
+            --gradient-start: #2563EB;
+            --gradient-end: #7C3AED;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .prediction-card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(37, 99, 235, 0.1);
+            border-radius: 1rem;
+            background: linear-gradient(135deg, white 0%, #FAFAFA 100%);
+        }
+
+        .result-box {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0.75rem;
+        }
+
+        .success-result {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-result {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            margin-bottom: 15px;
+            border-radius: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            border: none;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        .input-group {
+            margin: 1.5rem 0;
+            background: var(--accent-light);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--sidebar) 0%, #0F172A 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 280px;
+            padding: 1.5rem;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #E2E8F0;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: var(--sidebar-hover);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            background: linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 100%);
+            min-height: 100vh;
+        }
+
+        .disease-content {
+            display: none;
+        }
+
+        .disease-content.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header mb-4">
+            <a href="#" class="sidebar-logo">🏥 HealthPredict AI</a>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="#home" class="nav-link active" onclick="showContent('home')">
+                    🏠 Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#diabetes" class="nav-link" onclick="showContent('diabetes')">
+                    🩸 Diabetes Prediction
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#heart" class="nav-link" onclick="showContent('heart')">
+                    ❤️ Heart Disease Prediction
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#kidney" class="nav-link" onclick="showContent('kidney')">
+                    🧪 Kidney Disease Prediction
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#pneumonia" class="nav-link" onclick="showContent('pneumonia')">
+                    🫁 Pneumonia Detection
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#brain" class="nav-link" onclick="showContent('brain')">
+                    🧠 Brain Tumor Detection
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#parkinson" class="nav-link" onclick="showContent('parkinson')">
+                    🏃‍♂️ Parkinson's Prediction
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div id="home" class="disease-content active">
+            <div class="card prediction-card">
+                <div class="card-body">
+                    <h2>Welcome to HealthPredict AI</h2>
+                    <p class="lead">
+                        Your comprehensive health prediction system using advanced machine learning models.
+                    </p>
+                    <hr>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5>🩸 Diabetes Prediction</h5>
+                                    <p>Predict the likelihood of diabetes based on health metrics.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5>❤️ Heart Disease</h5>
+                                    <p>Assess your risk of cardiovascular diseases.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5>🧪 Kidney Disease</h5>
+                                    <p>Evaluate kidney function and potential issues.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5>🫁 Pneumonia</h5>
+                                    <p>Detect pneumonia from chest X-ray images.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-4">
+                        <strong>Note:</strong> These predictions are based on machine learning models and should not replace professional medical advice.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diabetes Prediction -->
+        <div id="diabetes" class="disease-content">
+            <div class="card prediction-card">
+                <div class="card-body">
+                    <h2>Diabetes Prediction</h2>
+                    <p>Enter your health metrics to assess diabetes risk.</p>
+                    <form id="diabetesForm">
+                        <input type="hidden" name="prediction_type" value="diabetes" />
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="Pregnancies" class="form-label">Number of Pregnancies</label>
+                                <input type="number" class="form-control" id="Pregnancies" name="Pregnancies" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="Glucose" class="form-label">Glucose Level</label>
+                                <input type="number" class="form-control" id="Glucose" name="Glucose" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="BloodPressure" class="form-label">BloodPressure Value</label>
+                                <input type="number" class="form-control" id="BloodPressure" name="BloodPressure" step="any" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="SkinThickness" class="form-label">SkinThickness Value</label>
+                                <input type="number" class="form-control" id="SkinThickness" name="SkinThickness" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="Insulin" class="form-label">Insulin Value</label>
+                                <input type="number" class="form-control" id="Insulin" name="Insulin" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="BMI" class="form-label">BMI Value</label>
+                                <input type="number" class="form-control" id="BMI" name="BMI" step="any" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 form-section">
+                                <label for="DiabetesPedigreeFunction" class="form-label">DiabetesPedigreeFunction</label>
+                                <input type="number" class="form-control" id="DiabetesPedigreeFunction" name="DiabetesPedigreeFunction" step="any" required />
+                            </div>
+                            <div class="col-md-6 form-section">
+                                <label for="Age" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="Age" name="Age" step="any" required />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Predict Diabetes Risk</button>
+                    </form>
+
+                    <div id="diabetesResult" class="result-box mt-3" style="display: none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heart Disease Prediction -->
+        <div id="heart" class="disease-content">
+            <div class="card prediction-card">
+                <div class="card-body">
+                    <h2>Heart Disease Prediction</h2>
+                    <p>Enter your cardiovascular health metrics to assess heart disease risk.</p>
+                    <form id="heartForm">
+                        <input type="hidden" name="prediction_type" value="heart" />
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="age" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="age" name="age" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="sex" class="form-label">Sex (1=male, 0=female)</label>
+                                <input type="number" class="form-control" id="sex" name="sex" min="0" max="1" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="cp" class="form-label">Chest Pain Type (0-3)</label>
+                                <input type="number" class="form-control" id="cp" name="cp" min="0" max="3" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="trestbps" class="form-label">Resting Blood Pressure</label>
+                                <input type="number" class="form-control" id="trestbps" name="trestbps" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="chol" class="form-label">Serum Cholesterol (mg/dl)</label>
+                                <input type="number" class="form-control" id="chol" name="chol" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="fbs" class="form-label">Fasting Blood Sugar > 120 mg/dl</label>
+                                <input type="number" class="form-control" id="fbs" name="fbs" min="0" max="1" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="restecg" class="form-label">Resting ECG Results</label>
+                                <input type="number" class="form-control" id="restecg" name="restecg" min="0" max="2" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="thalach" class="form-label">Max Heart Rate Achieved</label>
+                                <input type="number" class="form-control" id="thalach" name="thalach" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="exang" class="form-label">Exercise Induced Angina</label>
+                                <input type="number" class="form-control" id="exang" name="exang" min="0" max="1" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="oldpeak" class="form-label">ST Depression Induced</label>
+                                <input type="number" class="form-control" id="oldpeak" name="oldpeak" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="slope" class="form-label">Slope of Peak Exercise ST</label>
+                                <input type="number" class="form-control" id="slope" name="slope" min="0" max="2" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="ca" class="form-label">Major Vessels Colored</label>
+                                <input type="number" class="form-control" id="ca" name="ca" min="0" max="3" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 form-section">
+                                <label for="thal" class="form-label">Thalassemia (0-2)</label>
+                                <input type="number" class="form-control" id="thal" name="thal" min="0" max="2" required />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Predict Heart Disease Risk</button>
+                    </form>
+
+                    <div id="heartResult" class="result-box mt-3" style="display: none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kidney Disease Prediction -->
+        <div id="kidney" class="disease-content">
+            <div class="card prediction-card">
+                <div class="card-body">
+                    <h2>Kidney Disease Prediction</h2>
+                    <p>Enter your kidney health metrics to assess potential issues.</p>
+                    <form id="kidneyForm">
+                        <input type="hidden" name="prediction_type" value="kidney" />
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="kidney_age" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="kidney_age" name="Age" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="blood_pressure" class="form-label">Blood Pressure</label>
+                                <input type="number" class="form-control" id="blood_pressure" name="Blood Pressure" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="specific_gravity" class="form-label">Specific Gravity</label>
+                                <input type="number" class="form-control" id="specific_gravity" name="Specific Gravity" step="any" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="albumin" class="form-label">Albumin</label>
+                                <input type="number" class="form-control" id="albumin" name="Albumin" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="sugar" class="form-label">Sugar</label>
+                                <input type="number" class="form-control" id="sugar" name="Sugar" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="red_blood_cell" class="form-label">Red Blood Cell</label>
+                                <input type="number" class="form-control" id="red_blood_cell" name="Red Blood Cell" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="pus_cell" class="form-label">Pus Cell</label>
+                                <input type="number" class="form-control" id="pus_cell" name="Pus Cell" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="pus_cell_clumps" class="form-label">Pus Cell Clumps</label>
+                                <input type="number" class="form-control" id="pus_cell_clumps" name="Pus Cell Clumps" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="bacteria" class="form-label">Bacteria</label>
+                                <input type="number" class="form-control" id="bacteria" name="Bacteria" required />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Predict Kidney Disease Risk</button>
+                    </form>
+
+                    <div id="kidneyResult" class="result-box mt-3" style="display: none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pneumonia Detection -->
+        <div id="pneumonia" class="disease-content">
+            <div class="card prediction-card">
+                <div class="card-body">
+                    <h2>Pneumonia Detection</h2>
+                    <p>Upload a chest X-ray to detect signs of pneumonia with high accuracy.</p>
+                    <form id="pneumoniaForm" enctype="multipart/form-data">
+                        <input type="hidden" name="prediction_type" value="pneumonia" />
+                        <div class="mb-3 input-group">
+                            <label for="pneumoniaFile" class="form-label">Upload Chest X-ray Image</label>
+                            <input class="form-control" type="file" id="pneumoniaFile" name="file" accept=".jpg,.jpeg,.png" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Detect Pneumonia</button>
+                    </form>
+
+                    <div id="pneumoniaImagePreview" class="text-center mt-3"></div>
+                    <div id="pneumoniaResult" class="result-box mt-3" style="display: none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brain Tumor Detection -->
+        <div id="brain" class="disease-content">
+            <div class="card prediction-card">
+                <div class="card-body">
+                    <h2>Brain Tumor Detection</h2>
+                    <p>Upload an MRI image to detect potential brain tumors.</p>
+                    <form id="brainForm" enctype="multipart/form-data">
+                        <input type="hidden" name="prediction_type" value="brain_tumor" />
+                        <div class="mb-3 input-group">
+                            <label for="brainFile" class="form-label">Upload MRI Image</label>
+                            <input class="form-control" type="file" id="brainFile" name="file" accept=".jpg,.jpeg,.png" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Detect Brain Tumor</button>
+                    </form>
+
+                    <div id="brainImagePreview" class="text-center mt-3"></div>
+                    <div id="brainResult" class="result-box mt-3" style="display: none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parkinson's Disease Prediction -->
+        <div id="parkinson" class="disease-content">
+            <div class="card prediction-card">
+                <div class="card-body">
+                    <h2>Parkinson's Disease Prediction</h2>
+                    <p>Enter voice measurement data to assess Parkinson's disease risk.</p>
+                    <form id="parkinsonForm">
+                        <input type="hidden" name="prediction_type" value="parkinson" />
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="mdvp_fo" class="form-label">MDVP:Fo(Hz)</label>
+                                <input type="number" class="form-control" id="mdvp_fo" name="MDVP:Fo(Hz)" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="mdvp_fhi" class="form-label">MDVP:Fhi(Hz)</label>
+                                <input type="number" class="form-control" id="mdvp_fhi" name="MDVP:Fhi(Hz)" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="mdvp_flo" class="form-label">MDVP:Flo(Hz)</label>
+                                <input type="number" class="form-control" id="mdvp_flo" name="MDVP:Flo(Hz)" step="any" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="mdvp_jitter_percent" class="form-label">MDVP:Jitter(%)</label>
+                                <input type="number" class="form-control" id="mdvp_jitter_percent" name="MDVP:Jitter(%)" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="mdvp_jitter_abs" class="form-label">MDVP:Jitter(Abs)</label>
+                                <input type="number" class="form-control" id="mdvp_jitter_abs" name="MDVP:Jitter(Abs)" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="mdvp_rap" class="form-label">MDVP:RAP</label>
+                                <input type="number" class="form-control" id="mdvp_rap" name="MDVP:RAP" step="any" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 form-section">
+                                <label for="mdvp_ppq" class="form-label">MDVP:PPQ</label>
+                                <input type="number" class="form-control" id="mdvp_ppq" name="MDVP:PPQ" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="jitter_ddp" class="form-label">Jitter:DDP</label>
+                                <input type="number" class="form-control" id="jitter_ddp" name="Jitter:DDP" step="any" required />
+                            </div>
+                            <div class="col-md-4 form-section">
+                                <label for="mdvp_shimmer" class="form-label">MDVP:Shimmer</label>
+                                <input type="number" class="form-control" id="mdvp_shimmer" name="MDVP:Shimmer" step="any" required />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Predict Parkinson's Risk</button>
+                    </form>
+
+                    <div id="parkinsonResult" class="result-box mt-3" style="display: none"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Show content based on navigation
+        function showContent(id) {
+            document.querySelectorAll('.disease-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(id).classList.add('active');
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`a[href="#${id}"]`).classList.add('active');
+        }
+
+        // Initialize by showing home content
+        document.addEventListener('DOMContentLoaded', function() {
+            showContent('home');
+        });
+
+        // Handle form submissions
+        document.querySelectorAll("form").forEach((form) => {
+            form.addEventListener("submit", async function (e) {
+                e.preventDefault();
+                const formId = this.id;
+                const formData = new FormData(this);
+
+                try {
+                    const response = await fetch("/predict", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === "success") {
+                        const resultElement = document.getElementById(`${formId.replace('Form', 'Result')}`);
+                        resultElement.style.display = "block";
+                        
+                        if (formId === "diabetesForm") {
+                            resultElement.className = `result-box ${data.result.includes("does not") ? "success-result" : "error-result"}`;
+                            resultElement.innerHTML = `
+                                <h5>Result:</h5>
+                                <p>${data.result}</p>
+                            `;
+                        } 
+                        else if (formId === "heartForm") {
+                            resultElement.className = `result-box ${data.result.includes("does not") ? "success-result" : "error-result"}`;
+                            resultElement.innerHTML = `
+                                <h5>Result:</h5>
+                                <p>${data.result}</p>
+                            `;
+                        }
+                        else if (formId === "kidneyForm") {
+                            resultElement.className = `result-box ${data.result.includes("does not") ? "success-result" : "error-result"}`;
+                            resultElement.innerHTML = `
+                                <h5>Result:</h5>
+                                <p>${data.result}</p>
+                            `;
+                        }
+                        else if (formId === "pneumoniaForm") {
+                            document.getElementById("pneumoniaImagePreview").innerHTML = `
+                                <h5>Uploaded X-ray:</h5>
+                                <img src="data:image/jpeg;base64,${data.image}" class="img-fluid" style="max-height: 300px;">
+                            `;
+                            resultElement.className = `result-box ${data.result.includes("No Pneumonia") ? "success-result" : "error-result"}`;
+                            resultElement.innerHTML = `
+                                <h5>Result:</h5>
+                                <p>${data.result}</p>
+                            `;
+                        }
+                        else if (formId === "brainForm") {
+                            document.getElementById("brainImagePreview").innerHTML = `
+                                <h5>Uploaded MRI:</h5>
+                                <img src="data:image/jpeg;base64,${data.image}" class="img-fluid" style="max-height: 300px;">
+                            `;
+                            resultElement.className = `result-box ${data.result === "No Tumor" ? "success-result" : "error-result"}`;
+                            resultElement.innerHTML = `
+                                <h5>Result:</h5>
+                                <p>${data.result} (${data.confidence})</p>
+                            `;
+                        }
+                        else if (formId === "parkinsonForm") {
+                            resultElement.className = `result-box ${data.result.includes("does not") ? "success-result" : "error-result"}`;
+                            resultElement.innerHTML = `
+                                <h5>Result:</h5>
+                                <p>${data.result}</p>
+                            `;
+                        }
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                } catch (error) {
+                    alert(`An error occurred: ${error}`);
+                }
+            });
+        });
+
+        // Preview image before upload
+        document.getElementById("pneumoniaFile").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById("pneumoniaImagePreview").innerHTML = `
+                        <h5>Preview:</h5>
+                        <img src="${event.target.result}" class="img-fluid" style="max-height: 300px;">
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById("brainFile").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById("brainImagePreview").innerHTML = `
+                        <h5>Preview:</h5>
+                        <img src="${event.target.result}" class="img-fluid" style="max-height: 300px;">
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>
